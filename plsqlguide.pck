@@ -46,9 +46,32 @@ htp.prn('
 			</nav>
 
 			<div class="container">
-				<h2>Header</h2>
-				<p>Paragraph</p>
-    	</div> <!-- /container -->
+				<table class="table table-bordered">
+					<tr>
+						<th>#</th>
+						<th>Name</th>
+						<th>Description</th>
+						<th>Quantity</th>
+						<th>Price</th>
+					</tr>
+');
+
+-- Fill out the parts table
+for row in (select * from parts) loop
+	htp.prn('
+						<tr>
+							<td>'||row.pid||'</td>
+							<td>'||row.name||'</td>
+							<td>'||row.description||'</td>
+							<td>'||row.quantity||'</td>
+							<td>'||row.price||'</td>
+						</tr>
+	');
+end loop;
+				
+htp.prn('
+    		</table>
+			</div> <!-- /container -->
 
 			<!-- jQuery (necessary for Bootstrap''s JavaScript plugins) -->
 			<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
