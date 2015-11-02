@@ -9,9 +9,28 @@ procedure p_main;
 
 procedure p_new_item;
 
+procedure insert_item(p_name varchar2, p_quant number, p_price number);
+
 end plsqlguide;
 /
 create or replace package body plsqlguide is
+
+/* Header Navbar, used on all of the pages */
+procedure navbar
+	is
+begin
+	
+htp.prn('
+	<nav class="navbar navbar-default navbar-static-top">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="jpetersen11.plsqlguide.p_main">PL/SQL Sample Application</a>
+			</div>
+		</div>
+	</nav>
+');
+	
+end navbar;
 
 /* Main entry point (homepage) */
 procedure p_main
@@ -39,14 +58,12 @@ htp.prn('
 		</head>
 		<body>
 			<!-- Static navbar -->
-			<nav class="navbar navbar-default navbar-static-top">
-				<div class="container">
-					<div class="navbar-header">
-						<a class="navbar-brand" href="#">PL/SQL Sample Application</a>
-					</div>
-				</div>
-			</nav>
+');
 
+-- Header Navbar
+navbar;
+
+htp.prn('
 			<div class="container">
 				<p>
 					<a href="jpetersen11.plsqlguide.p_new_item">
@@ -57,7 +74,6 @@ htp.prn('
 					<tr>
 						<th>#</th>
 						<th>Name</th>
-						<th>Description</th>
 						<th>Quantity</th>
 						<th>Price</th>
 					</tr>
@@ -69,7 +85,6 @@ for row in (select * from parts) loop
 						<tr>
 							<td>'||row.pid||'</td>
 							<td>'||row.name||'</td>
-							<td>'||row.description||'</td>
 							<td>'||row.quantity||'</td>
 							<td>'||row.price||'</td>
 						</tr>
@@ -90,7 +105,7 @@ htp.prn('
 	
 end p_main;
 
-/* Main entry point (homepage) */
+/* New Item Page */
 procedure p_new_item
 	is
 begin
@@ -117,24 +132,20 @@ htp.prn('
 		<body>
 		
 			<!-- Static navbar -->
-			<nav class="navbar navbar-default navbar-static-top">
-				<div class="container">
-					<div class="navbar-header">
-						<a class="navbar-brand" href="#">PL/SQL Sample Application</a>
-					</div>
-				</div>
-			</nav>
+');
 
+-- Header Navbar
+navbar;
+
+htp.prn('
 			<div class="container">
 				<h4><strong>New Item</strong></h4>
-				<form action="jpetersen11.insert_item" method="post">
-					<input type="text" class="form-control" placeholder="Product Number"><br />
-					<input type="text" class="form-control" placeholder="Name"><br />
-					<input type="text" class="form-control" placeholder="Description"><br />
-					<input type="text" class="form-control" placeholder="Quantity"><br />
+				<form action="jpetersen11.plsqlguide.insert_item" method="post">
+					<input name="p_name" type="text" class="form-control" placeholder="Name"><br />
+					<input name="p_quant" type="text" class="form-control" placeholder="Quantity"><br />
 					<div class="input-group">
 						<span class="input-group-addon">$</span>
-						<input type="text" class="form-control" placeholder="Price">
+						<input name="p_price" type="text" class="form-control" placeholder="Price">
 					</div><br />
 					<button type="submit" class="btn btn-default">Submit</button>
 				</form>
@@ -145,6 +156,24 @@ htp.prn('
 ');
 	
 end p_new_item;
+
+/* Insert Item Logic */
+procedure insert_item(p_name varchar2, p_quant number, p_price number)
+	is
+		v_item_no number;
+begin
+
+-- Grab the new item ID
+SELECT SEQ_PARTS.NEXTVAL INTO v_item_no FROM DUAL;
+
+-- Insert the item into the table
+INSERT INTO PARTS (PID, NAME, QUANTITY, PRICE)
+VALUES (v_item_no, UPPER(p_name), p_quant, p_price);
+
+-- Redirect the user back to the home page
+htp.prn('<script> window.location = "jpetersen11.plsqlguide.p_main"; </script>');
+
+end insert_item;
 
 begin
   -- Initialization
